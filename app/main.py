@@ -1,10 +1,13 @@
 from opendota import get_player_info, get_player_matches, get_player_wl, get_heroes
 from fastapi import FastAPI
-
+from db import set_cache, get_cache
 app = FastAPI()
 
 @app.get("/player/{account_id}")
 async def player_stats(account_id: int):
+    cached = await get_cache(account_id)
+    if cached:
+        return cached["data"]
     info = get_player_info(account_id)
     matches = get_player_matches(account_id)
     wl = get_player_wl(account_id)
@@ -36,11 +39,13 @@ async def player_stats(account_id: int):
          for hero_id, stats in top3
     ]
 
-    return {
+    result = {
         "info": info,
         "matches": matches,
         "wl": wl,
         "winrate": winrate,
-        "avg_kda": avg_kda, 
+        "avg_kda": avg_kda,
         "top3": top3_named
     }
+    await set_cache(account_id, result)
+    return result
