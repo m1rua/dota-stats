@@ -1,2 +1,36 @@
-eval $(minikube docker-env)
-docker build -t dota-api:lates
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api 
+          image: dota-api:latest
+          imagePullPolicy: Never
+          env:
+            - name: DATABASE_URL
+              value: postgresql://user:password@pgsql:5432/dota
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+
+spec:
+  selector:
+    app: api
+  ports:
+    - port: 8000
+      targetPort: 8000
