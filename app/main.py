@@ -2,6 +2,15 @@ from opendota import get_player_info, get_player_matches, get_player_wl, get_her
 from fastapi import FastAPI
 from db import set_cache, get_cache
 app = FastAPI()
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app)
+
+@app.on_event("startup")
+async def startup():
+    instrumentator.expose(app)
+
 
 @app.get("/player/{account_id}")
 async def player_stats(account_id: int):
