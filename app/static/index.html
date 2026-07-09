@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dota Stats</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e0e14;
+  --surface: #16161f;
+  --surface2: #1e1e2e;
+  --border: rgba(255,255,255,0.06);
+  --text: #e0e0f0;
+  --muted: #6b6b8a;
+  --accent: #7c6ff7;
+  --win: #4ade80;
+  --lose: #f87171;
+  --gold: #fbbf24;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* SEARCH */
+.search-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.logo {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(90deg, #7c6ff7, #f06292);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 40px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.search-box input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--muted); }
+
+.btn {
+  background: linear-gradient(135deg, #7c6ff7, #f06292);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn:active { opacity: 0.85; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* PROFILE */
+.profile-page { display: none; }
+
+.profile-header {
+  background: linear-gradient(180deg, #1a1a2e 0%, var(--bg) 100%);
+  padding: 32px 24px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface2);
+}
+
+.profile-name {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.profile-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.rank-badge {
+  background: var(--accent);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mmr { color: var(--gold); font-size: 14px; font-weight: 600; }
+
+.back-btn {
+  margin-left: auto;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.back-btn:hover { color: var(--text); }
+
+/* STATS GRID */
+.content { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-value.win { color: var(--win); }
+.stat-value.kda { color: var(--accent); }
+
+.winrate-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.winrate-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--win), #22c55e);
+  transition: width 0.8s ease;
+}
+
+/* TOP HEROES */
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.heroes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #7c6ff7, #f06292);
+}
+
+.hero-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.hero-wr { font-weight: 700; }
+.hero-wr.good { color: var(--win); }
+.hero-wr.bad { color: var(--lose); }
+.hero-wr.avg { color: var(--gold); }
+
+.hero-bar {
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.hero-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+/* MATCHES */
+.matches-list { display: flex; flex-direction: column; gap: 8px; }
+
+.match-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 100px 80px;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+
+.match-row:hover { border-color: rgba(124,111,247,0.3); }
+
+.match-result {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.match-result.win { background: rgba(74,222,128,0.15); color: var(--win); }
+.match-result.lose { background: rgba(248,113,113,0.15); color: var(--lose); }
+
+.match-hero { font-size: 14px; font-weight: 500; }
+.match-hero-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.match-kda { font-size: 14px; font-weight: 600; text-align: center; }
+.match-kda span { color: var(--muted); font-weight: 400; }
+
+.match-duration { font-size: 13px; color: var(--muted); text-align: right; }
+
+.match-id { font-size: 11px; color: var(--muted); text-align: right; }
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: var(--lose);
+}
+</style>
+</head>
+<body>
+
+<!-- SEARCH PAGE -->
+<div class="search-page" id="searchPage">
+  <div class="logo">DotaStats</div>
+  <div class="tagline">Статистика последних 30 матчей</div>
+  <div class="search-box">
+    <input type="text" id="steamInput" placeholder="Введи Steam ID (например 1141826708)" />
+    <button class="btn" onclick="loadStats()" id="searchBtn">Найти</button>
+  </div>
+  <div id="searchError" style="color:#f87171;margin-top:12px;font-size:14px;"></div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div class="profile-page" id="profilePage">
+  <div class="profile-header">
+    <div class="profile-header-inner">
+      <img class="avatar" id="profileAvatar" src="" alt="">
+      <div>
+        <div class="profile-name" id="profileName"></div>
+        <div class="profile-meta">
+          <span class="rank-badge" id="profileRank"></span>
+          <span class="mmr" id="profileMmr"></span>
+        </div>
+      </div>
+      <button class="back-btn" onclick="goBack()">← Назад</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Winrate</div>
+        <div class="stat-value win" id="statWinrate"></div>
+        <div class="winrate-bar"><div class="winrate-fill" id="winrateBar"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg KDA</div>
+        <div class="stat-value kda" id="statKda"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Победы / Поражения</div>
+        <div class="stat-value" id="statWL" style="font-size:22px;"></div>
+      </div>
+    </div>
+
+    <!-- Top Heroes -->
+    <div class="section-title">Топ герои (30 матчей)</div>
+    <div class="heroes-grid" id="heroesGrid"></div>
+
+    <!-- Matches -->
+    <div class="section-title">Последние матчи</div>
+    <div class="matches-list" id="matchesList"></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+
+const RANKS = {
+  11:'Рекрут I', 12:'Рекрут II', 13:'Рекрут III', 14:'Рекрут IV', 15:'Рекрут V',
+  21:'Страж I', 22:'Страж II', 23:'Страж III', 24:'Страж IV', 25:'Страж V',
+  31:'Рыцарь I', 32:'Рыцарь II', 33:'Рыцарь III', 34:'Рыцарь IV', 35:'Рыцарь V',
+  41:'Герой I', 42:'Герой II', 43:'Герой III', 44:'Герой IV', 45:'Герой V',
+  51:'Легенда I', 52:'Легенда II', 53:'Легенда III', 54:'Легенда IV', 55:'Легенда V',
+  61:'Властелин I', 62:'Властелин II', 63:'Властелин III', 64:'Властелин IV', 65:'Властелин V',
+  71:'Титан I', 72:'Титан II', 73:'Титан III', 74:'Титан IV', 75:'Титан V',
+  80:'Божественный', 81:'Божественный I', 82:'Божественный II', 83:'Божественный III', 84:'Божественный IV', 85:'Божественный V',
+  90:'Бессмертный'
+};
+
+function formatDuration(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+async function loadStats() {
+  const input = document.getElementById('steamInput').value.trim();
+  if (!input) return;
+
+  const btn = document.getElementById('searchBtn');
+  const errEl = document.getElementById('searchError');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Загрузка...';
+
+  try {
+    const r = await fetch(`${API}/player/${input}`);
+    if (!r.ok) throw new Error('Игрок не найден');
+    const data = await r.json();
+    renderProfile(data);
+  } catch(e) {
+    errEl.textContent = e.message || 'Ошибка загрузки';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Найти';
+  }
+}
+
+function renderProfile(data) {
+  const profile = data.info?.profile || {};
+  const wl = data.wl || {};
+  const winrate = Math.round(data.winrate || 0);
+  const rank = data.info?.rank_tier;
+  const mmr = data.info?.computed_mmr;
+
+  // Header
+  document.getElementById('profileAvatar').src = profile.avatarfull || '';
+  document.getElementById('profileName').textContent = profile.personaname || 'Неизвестный';
+  document.getElementById('profileRank').textContent = RANKS[rank] || 'Неизвестный ранг';
+  document.getElementById('profileMmr').textContent = mmr ? `~${Math.round(mmr)} MMR` : '';
+
+  // Stats
+  document.getElementById('statWinrate').textContent = winrate + '%';
+  document.getElementById('winrateBar').style.width = winrate + '%';
+  document.getElementById('statKda').textContent = data.avg_kda || '—';
+  document.getElementById('statWL').innerHTML = `<span style="color:var(--win)">${wl.win || 0}В</span> / <span style="color:var(--lose)">${wl.lose || 0}П</span>`;
+
+  // Heroes
+  const heroesGrid = document.getElementById('heroesGrid');
+  heroesGrid.innerHTML = (data.top3 || []).map(h => {
+    const wr = Math.round(h.wins / h.games * 100);
+    const cls = wr >= 60 ? 'good' : wr >= 45 ? 'avg' : 'bad';
+    const barColor = wr >= 60 ? '#4ade80' : wr >= 45 ? '#fbbf24' : '#f87171';
+    return `<div class="hero-card">
+      <div class="hero-name">${h.hero}</div>
+      <div class="hero-stats">
+        <span>${h.games} игр</span>
+        <span class="hero-wr ${cls}">${wr}% WR</span>
+      </div>
+      <div class="hero-bar"><div class="hero-bar-fill" style="width:${wr}%;background:${barColor}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Matches
+  const matchesList = document.getElementById('matchesList');
+  matchesList.innerHTML = (data.matches || []).map(m => {
+    const isRadiant = m.player_slot < 128;
+    const won = (isRadiant && m.radiant_win) || (!isRadiant && !m.radiant_win);
+    const duration = formatDuration(m.duration);
+    const date = new Date(m.start_time * 1000).toLocaleDateString('ru-RU');
+    return `<div class="match-row">
+      <div class="match-result ${won ? 'win' : 'lose'}">${won ? 'Победа' : 'Поражение'}</div>
+      <div>
+        <div class="match-hero">Герой #${m.hero_id}</div>
+        <div class="match-hero-sub">${date}</div>
+      </div>
+      <div class="match-kda">${m.kills} / <span>${m.deaths}</span> / ${m.assists}</div>
+      <div class="match-duration">${duration}</div>
+      <div class="match-id">#${m.match_id}</div>
+    </div>`;
+  }).join('');
+
+  // Switch pages
+  document.getElementById('searchPage').style.display = 'none';
+  document.getElementById('profilePage').style.display = 'block';
+}
+
+function goBack() {
+  document.getElementById('searchPage').style.display = 'flex';
+  document.getElementById('profilePage').style.display = 'none';
+}
+
+document.getElementById('steamInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadStats();
+});
+</script>
+</body>
+</html>

@@ -1,8 +1,13 @@
 from opendota import get_player_info, get_player_matches, get_player_wl, get_heroes
 from fastapi import FastAPI
 from db import set_cache, get_cache
-app = FastAPI()
 from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 
 instrumentator = Instrumentator()
 instrumentator.instrument(app)
@@ -56,5 +61,7 @@ async def player_stats(account_id: int):
         "avg_kda": avg_kda,
         "top3": top3_named
     }
+    
     await set_cache(account_id, result)
     return result
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
