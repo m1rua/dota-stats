@@ -4,6 +4,7 @@ from db import set_cache, get_cache
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -11,6 +12,10 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 instrumentator = Instrumentator()
 instrumentator.instrument(app)
+
+@app.get("/")
+async def index():
+    return FileResponse("static/index.html")
 
 @app.on_event("startup")
 async def startup():
