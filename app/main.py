@@ -51,22 +51,30 @@ async def player_stats(account_id: int):
         won = (is_radiant and m["radiant_win"]) or (not is_radiant and not m["radiant_win"])
         if won:
             heroes[hero]["wins"] += 1
-
+    heroes_icons = {h["id"]: h["name"].replace("npc_dota_hero_", "") for h in all_heroes}
     top3 = sorted(heroes.items(), key=lambda x: x[1]["games"], reverse=True)[:3]
     top3_named = [
-        {"hero": heroes_map.get(hero_id, hero_id), "games": stats["games"], "wins": stats["wins"]}
+        {"hero": heroes_map.get(hero_id, hero_id),
+        "icon": heroes_icons.get(hero_id, ""),
+        "games": stats["games"],
+        "wins": stats["wins"],
+        }
          for hero_id, stats in top3
     ]
 
+    matches_with_icons = [
+    {**m, "hero_icon": heroes_icons.get(m["hero_id"], "")}
+    for m in matches
+    ]
+
     result = {
-        "info": info,
-        "matches": matches,
-        "wl": wl,
-        "winrate": winrate,
-        "avg_kda": avg_kda,
-        "top3": top3_named
+    "info": info,
+    "matches": matches_with_icons,  # ← здесь
+    "wl": wl,
+    "winrate": winrate,
+    "avg_kda": avg_kda,
+    "top3": top3_named
     }
     
     await set_cache(account_id, result)
     return result
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
