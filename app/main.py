@@ -29,14 +29,14 @@ async def player_stats(account_id: int):
         return cached["data"]
     info = get_player_info(account_id)
     matches = get_player_matches(account_id)
-    wl = get_player_wl(account_id)
+    wl = get_player_wl(account_id, limit=100)
     all_heroes = get_heroes()
 
 
     total_kills = sum(m["kills"] for m in matches)
     total_death = sum(m["deaths"] for m in matches)
     total_assists = sum(m["assists"] for m in matches)
-    winrate = wl["win"] / (wl["win"] + wl["lose"]) * 100
+    winrate = wl["win"] / (wl["win"] + wl["lose"]) * 100 if (wl["win"] + wl["lose"]) > 0 else 0
     heroes_map = {h["id"]: h["localized_name"] for h in all_heroes}
     avg_kda = round((total_kills + total_assists) / total_death, 2)
 

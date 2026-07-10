@@ -11,12 +11,14 @@ async def get_connection():
 async def get_cache(account_id):
     conn = await get_connection()
     result = await conn.fetchrow(
-        "SELECT data FROM cache WHERE account_id = $1 AND cached_at > NOW() - INTERVAL '1 hour'",
+        """SELECT data FROM cache 
+        WHERE account_id = $1 
+        AND cached_at > NOW() - INTERVAL '1 hour'
+        AND data->'matches'->0->>'hero_icon' IS NOT NULL""",
         account_id
     )
     await conn.close()
     return result
-
 
 async def set_cache(account_id, data):
     conn = await get_connection()
