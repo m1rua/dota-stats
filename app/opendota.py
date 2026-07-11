@@ -3,7 +3,7 @@ import httpx
 BASE_URL = "https://api.opendota.com/api"
 
 def get_player_matches(account_id: int):
-    response = httpx.get(f"{BASE_URL}/players/{account_id}/matches?limit=30", verify=False)
+    response = httpx.get(f"{BASE_URL}/players/{account_id}/matches?limit=100", verify=False)
     return response.json()
 
 def get_player_info(account_id: int):

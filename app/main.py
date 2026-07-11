@@ -24,9 +24,10 @@ async def startup():
 
 @app.get("/player/{account_id}")
 async def player_stats(account_id: int):
+    import json
     cached = await get_cache(account_id)
     if cached:
-        return cached["data"]
+        return json.loads(cached["data"])
     info = get_player_info(account_id)
     matches = get_player_matches(account_id)
     wl = get_player_wl(account_id, limit=100)
@@ -38,7 +39,7 @@ async def player_stats(account_id: int):
     total_assists = sum(m["assists"] for m in matches)
     winrate = wl["win"] / (wl["win"] + wl["lose"]) * 100 if (wl["win"] + wl["lose"]) > 0 else 0
     heroes_map = {h["id"]: h["localized_name"] for h in all_heroes}
-    avg_kda = round((total_kills + total_assists) / total_death, 2)
+    avg_kda = round((total_kills + total_assists) / total_death, 2) if total_death > 0 else total_kills + total_assists
 
 
     heroes = {}

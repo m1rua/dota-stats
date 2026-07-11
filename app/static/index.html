@@ -276,6 +276,7 @@ async function search() {
     const r = await fetch(`${API}/player/${id}`);
     if (!r.ok) throw new Error('Игрок не найден');
     const json = await r.json();
+    console.log('matches:', json.matches?.length, 'first hero_icon:', json.matches?.[0]?.hero_icon);
     // Проверяем что данные корректные
     if (!json.matches || json.matches.length === 0) throw new Error('Нет данных');
     data = json;
