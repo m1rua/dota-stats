@@ -348,7 +348,7 @@ function render() {
     const clr = wr2>=60?'var(--win)':wr2>=45?'#aa8833':'var(--lose)';
     const name = cap(h.icon) || `Герой`;
     return `<div class="hcard">
-      <img class="himg" src="${CDN}/${h.icon||'antimage'}_icon.png" onerror="this.style.opacity=0" alt="">
+      <img class="himg" src="${CDN}/${h.icon||'antimage'}.png" onerror="this.style.opacity=0" alt="">
       <div class="hinfo">
         <div class="hname">${name}</div>
         <div class="hmeta"><span>${h.games} игр</span><span class="hwr ${cls}">${wr2}%</span></div>
@@ -366,7 +366,7 @@ function render() {
       <td style="width:72px"><span class="rtag ${won?'w':'l'}">${won?'ПОБЕДА':'ПОРАЖ'}</span></td>
       <td>
         <div class="mhero">
-          <img class="mhimg" src="${CDN}/${m.hero_icon||'antimage'}_icon.png" onerror="this.style.opacity=0" alt="">
+          <img class="mhimg" src="${CDN}/${m.hero_icon||'antimage'}.png" onerror="this.style.opacity=0" alt="">
           <div><div class="mhname">${hname}</div><div class="mdate">${dt(m.start_time)}</div></div>
         </div>
       </td>
